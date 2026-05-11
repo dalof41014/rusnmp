@@ -45,6 +45,10 @@ impl BerEncoder {
         self.buf
     }
 
+    pub fn buf_extend(&mut self, data: &[u8]) {
+        self.buf.extend_from_slice(data);
+    }
+
     pub fn write_sequence(&mut self, content: &[u8]) {
         self.buf.push(TAG_SEQUENCE);
         self.write_length(content.len());
@@ -216,6 +220,17 @@ impl<'a> BerDecoder<'a> {
         let len = self.read_length()?;
         let data = self.read_raw(len)?;
         Ok((tag, data))
+    }
+
+    /// Read a TLV and return the full encoded bytes (tag + length + value).
+    pub fn read_tlv_with_header(&mut self) -> Result<(u8, Vec<u8>)> {
+        let start = self.pos;
+        let tag = self.read_tag()?;
+        let len = self.read_length()?;
+        let _ = self.read_raw(len)?;
+        let end = self.pos;
+        let full = self.data[start..end].to_vec();
+        Ok((tag, full))
     }
 
     pub fn read_sequence(&mut self) -> Result<BerDecoder<'a>> {
@@ -532,4 +547,9 @@ pub fn decode_response(data: &[u8]) -> Result<SnmpResponse> {
         error_index,
         varbinds,
     })
+}
+
+/// Public wrapper for encoding a Value (used by v3_client).
+pub fn encode_value_pub(enc: &mut BerEncoder, value: &Value) {
+    encode_value(enc, value);
 }
