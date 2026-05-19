@@ -83,7 +83,7 @@ impl SnmpClient {
 
     /// SNMP GET for a single OID — convenience method.
     pub async fn get_one(&mut self, oid: &Oid) -> Result<VarBind> {
-        let results = self.get(&[oid.clone()]).await?;
+        let results = self.get(std::slice::from_ref(oid)).await?;
         results.into_iter().next().ok_or_else(|| SnmpError::Decode("empty response".into()))
     }
 

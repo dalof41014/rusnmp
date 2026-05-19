@@ -36,9 +36,15 @@ pub struct BerEncoder {
     buf: Vec<u8>,
 }
 
+impl Default for BerEncoder {
+    fn default() -> Self {
+        Self { buf: Vec::with_capacity(512) }
+    }
+}
+
 impl BerEncoder {
     pub fn new() -> Self {
-        Self { buf: Vec::with_capacity(512) }
+        Self::default()
     }
 
     pub fn into_bytes(self) -> Vec<u8> {

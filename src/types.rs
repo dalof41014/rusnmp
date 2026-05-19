@@ -10,6 +10,7 @@ impl Oid {
     }
 
     /// Parse dotted string like "1.3.6.1.2.1.1.1.0"
+    #[allow(clippy::should_implement_trait)]
     pub fn from_str(s: &str) -> std::result::Result<Self, &'static str> {
         let parts: std::result::Result<Vec<u32>, _> = s
             .trim_start_matches('.')

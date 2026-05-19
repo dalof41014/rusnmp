@@ -163,7 +163,7 @@ impl SnmpV3Client {
 
         // Build security params with empty auth (placeholder)
         let auth_placeholder_len = self.credentials.auth_protocol
-            .map(|p| truncated_hmac_len_pub(p))
+            .map(truncated_hmac_len_pub)
             .unwrap_or(0);
         let auth_placeholder = vec![0u8; auth_placeholder_len];
 
@@ -197,6 +197,7 @@ impl SnmpV3Client {
         self.engine.engine_time = msg.engine_time;
 
         // Verify auth if applicable
+        #[allow(clippy::collapsible_if)]
         if let (Some(proto), Some(auth_key)) = (self.credentials.auth_protocol, &self.auth_key) {
             if !msg.auth_params.is_empty() {
                 let mut verify_data = resp_data.clone();
@@ -243,7 +244,7 @@ impl SnmpV3Client {
 
     /// SNMP GET for a single OID.
     pub async fn get_one(&mut self, oid: &Oid) -> Result<VarBind> {
-        let results = self.get(&[oid.clone()]).await?;
+        let results = self.get(std::slice::from_ref(oid)).await?;
         results.into_iter().next().ok_or_else(|| SnmpError::Decode("empty response".into()))
     }
 
@@ -284,7 +285,7 @@ impl SnmpV3Client {
 
         let is_encrypted = self.credentials.priv_protocol.is_some();
         let auth_placeholder_len = self.credentials.auth_protocol
-            .map(|p| truncated_hmac_len_pub(p))
+            .map(truncated_hmac_len_pub)
             .unwrap_or(0);
         let auth_placeholder = vec![0u8; auth_placeholder_len];
 

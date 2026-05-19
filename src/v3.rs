@@ -579,6 +579,7 @@ pub fn decode_scoped_pdu(data: &[u8]) -> Result<ScopedPduData> {
     })
 }
 
+#[allow(clippy::type_complexity)]
 fn decode_usm_params(data: &[u8]) -> Result<(Vec<u8>, u32, u32, Vec<u8>, Vec<u8>, Vec<u8>)> {
     if data.is_empty() {
         return Ok((vec![], 0, 0, vec![], vec![], vec![]));
